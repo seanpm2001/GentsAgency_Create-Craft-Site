@@ -24,6 +24,8 @@ This will output:
 📥 Installing Craft CMS & a front-end setup
 ☕️ This might take a while
 
+🤖 Installing nystudio107/craft-scripts
+
 🚢 Moving some files around
 
 🔧 Tweaking your configuration

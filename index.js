@@ -5,6 +5,7 @@ const path = require('path');
 const cp = require('child_process');
 const mkdirp = require('mkdirp');
 const minimist = require('minimist');
+const https = require('https');
 
 const cwd = (() => {
 	const argv = minimist(process.argv.slice(2));
@@ -83,6 +84,39 @@ const replaceInFile = (src, replacements = {}) => new Promise((resolve, reject) 
 	});
 });
 
+const downloadFile = (url) => new Promise((resolve, reject) => {
+	const filename = path.basename(url);
+
+	return createDirectory(`${__dirname}/tmp`).then(() => {
+		const target = `${__dirname}/tmp/${filename}`;
+		const file = fs.createWriteStream(target);
+
+		const download = (u) => {
+			https.get(u, (res) => {
+				if (res.statusCode < 200 || res.statusCode >= 400) {
+					reject();
+				} else if (res.statusCode >= 300 && res.headers.location) {
+					download(res.headers.location);
+				} else {
+					res.pipe(file);
+				}
+			});
+		};
+
+		file.on('finish', () => {
+			file.close(resolve);
+			resolve(target);
+		});
+
+		file.on('error', (err) => {
+			fs.unlink(file);
+			reject(err);
+		});
+
+		download(url);
+	});
+});
+
 (async function createCraftSite() {
 	console.log(`👋 Creating a new Craft website in ${cwd}`);
 	console.log('');
@@ -95,6 +129,13 @@ const replaceInFile = (src, replacements = {}) => new Promise((resolve, reject) 
 		await run('npm init @gentsagency/static-site --yes --scope=@gentsagency'),
 		await run('composer create-project craftcms/craft ./craft'),
 	]);
+
+	console.log('🤖 Installing nystudio107/craft-scripts');
+	console.log('');
+	const download = await downloadFile('https://github.com/nystudio107/craft-scripts/archive/master.zip');
+	await run(`unzip ${download} -d ${__dirname}/tmp`);
+	await moveDirectory(`${__dirname}/tmp/craft-scripts-master/scripts`, `${cwd}/scripts`);
+	await removeDirectory(`${__dirname}/tmp`);
 
 	console.log('🚢 Moving some files around');
 	console.log('');
