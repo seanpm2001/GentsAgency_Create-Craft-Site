@@ -1,0 +1,9 @@
+/node_modules
+.DS_Store
+
+/craft/storage/runtime
+/craft/storage/backups
+/craft/.env
+
+/www/cpresources
+/www/files
