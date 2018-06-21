@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const cp = require('child_process');
-const mkdirp = require('mkdirp');
 const minimist = require('minimist');
 const https = require('https');
 
@@ -18,8 +17,8 @@ const cwd = (() => {
 	return process.cwd();
 })();
 
-const run = (cmd) => new Promise((resolve, reject) => {
-	cp.exec(cmd, { cwd }, (err) => {
+const run = (cmd, options = { cwd }) => new Promise((resolve, reject) => {
+	cp.exec(cmd, options, (err) => {
 		if (err) {
 			return reject(err);
 		}
@@ -27,42 +26,6 @@ const run = (cmd) => new Promise((resolve, reject) => {
 		return resolve();
 	});
 });
-
-const createDirectory = (dir) => new Promise((resolve, reject) => {
-	mkdirp(dir, (err) => {
-		if (err) {
-			return reject(err);
-		}
-
-		return resolve();
-	});
-});
-
-const copyFile = (src, dest) => new Promise((resolve, reject) => {
-	const read = fs.createReadStream(`${__dirname}/templates/${src}`);
-
-	read.on('error', (err) => reject(err));
-
-	const write = fs.createWriteStream(`${cwd}/${dest || src}`);
-
-	write.on('error', (err) => reject(err));
-
-	write.on('close', () => resolve());
-
-	read.pipe(write);
-});
-
-const copyDirectory = (src, dest) => run(`cp -r ${__dirname}/templates/${src} ${cwd}/${dest || src}`);
-
-const removeFile = (src) => run(`rm ${src}`);
-
-const removeDirectory = (src) => run(`rm -r ${src}`);
-
-const move = (src, dest) => run(`mv ${src} ${dest}`);
-
-const moveFile = (...args) => move(...args);
-
-const moveDirectory = (...args) => move(...args);
 
 const replaceInFile = (src, replacements = {}) => new Promise((resolve, reject) => {
 	const file = path.resolve(cwd, src);
@@ -87,7 +50,7 @@ const replaceInFile = (src, replacements = {}) => new Promise((resolve, reject) 
 const downloadFile = (url) => new Promise((resolve, reject) => {
 	const filename = path.basename(url);
 
-	return createDirectory(`${__dirname}/tmp`).then(() => {
+	return fs.ensureDir(`${__dirname}/tmp`).then(() => {
 		const target = `${__dirname}/tmp/${filename}`;
 		const file = fs.createWriteStream(target);
 
@@ -120,7 +83,7 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 (async function createCraftSite() {
 	console.log(`👋 Creating a new Craft website in ${cwd}`);
 	console.log('');
-	await createDirectory(cwd);
+	await fs.ensureDir(cwd);
 
 	console.log('📥 Installing Craft CMS & a front-end setup');
 	console.log('☕️ This might take a while');
@@ -134,19 +97,19 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 	console.log('');
 	const download = await downloadFile('https://github.com/nystudio107/craft-scripts/archive/master.zip');
 	await run(`unzip ${download} -d ${__dirname}/tmp`);
-	await moveDirectory(`${__dirname}/tmp/craft-scripts-master/scripts`, `${cwd}/scripts`);
-	await removeDirectory(`${__dirname}/tmp`);
+	await fs.move(`${__dirname}/tmp/craft-scripts-master/scripts`, `${cwd}/scripts`);
+	await fs.remove(`${__dirname}/tmp`);
 
 	console.log('🚢 Moving some files around');
 	console.log('');
-	await removeDirectory('./www');
-	await moveDirectory('./craft/web', './www');
-	await removeFile('.gitignore');
-	await copyFile('gitignore', '.gitignore');
+	await Promise.all([
+		fs.move(`${cwd}/craft/web`, `${cwd}/www`, { overwrite: true }),
+		fs.copy(`${__dirname}/templates/gitignore`, `${cwd}/.gitignore`, { overwrite: true }),
+	]);
 
 	console.log('🔧 Tweaking your configuration');
 	console.log('');
-	await replaceInFile('./www/index.php', { 'dirname(__DIR__)': '\'../craft\'' });
+	await replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' });
 
 	console.log('🌱 All set! Let\'s get you started:');
 	console.log('');
