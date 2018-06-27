@@ -35,7 +35,8 @@ const replaceInFile = (src, replacements = {}) => new Promise((resolve, reject) 
 			return reject(readErr);
 		}
 
-		const replaced = Object.entries(replacements).reduce((string, [pattern, replacement]) => string.replace(pattern, replacement), data);
+		const replaced = Object.entries(replacements)
+			.reduce((string, [pattern, replacement]) => string.replace(pattern, replacement), data);
 
 		return fs.writeFile(file, replaced, 'utf8', (writeErr) => {
 			if (writeErr) {
@@ -102,10 +103,18 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 
 	console.log('🚢 Moving some files around');
 	console.log('');
+	await fs.rename(`${cwd}/www`, `${cwd}/static-www`);
+
 	await Promise.all([
 		fs.move(`${cwd}/craft/web`, `${cwd}/www`, { overwrite: true }),
 		fs.copy(`${__dirname}/templates/gitignore`, `${cwd}/.gitignore`, { overwrite: true }),
 	]);
+
+	const staticFiles = await fs.readdir(`${cwd}/static-www`);
+	await Promise.all(staticFiles
+		.filter((file) => file !== 'index.html')
+		.map((file) => fs.move(`${cwd}/static-www/${file}`, `${cwd}/www/${file}`)));
+	await fs.remove(`${cwd}/static-www`);
 
 	console.log('🔧 Tweaking your configuration');
 	console.log('');
