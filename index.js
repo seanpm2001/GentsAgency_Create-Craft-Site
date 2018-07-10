@@ -90,8 +90,8 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 	console.log('☕️ This might take a while');
 	console.log('');
 	await Promise.all([
-		await run('npm init @gentsagency/static-site --yes --scope=@gentsagency'),
-		await run('composer create-project craftcms/craft ./craft'),
+		run('npm init @gentsagency/static-site --yes --scope=@gentsagency'),
+		run('composer create-project craftcms/craft ./craft'),
 	]);
 
 	console.log('🤖 Installing nystudio107/craft-scripts');
