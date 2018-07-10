@@ -94,6 +94,10 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 		run('composer create-project craftcms/craft ./craft'),
 	]);
 
+	console.log('🔩 Installing Craft plugins');
+	console.log('');
+	await run('composer require craftcms/aws-s3', { cwd: `${cwd}/craft` });
+
 	console.log('🤖 Installing nystudio107/craft-scripts');
 	console.log('');
 	const download = await downloadFile('https://github.com/nystudio107/craft-scripts/archive/master.zip');
