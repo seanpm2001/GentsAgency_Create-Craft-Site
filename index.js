@@ -97,6 +97,8 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 	console.log('🔩 Installing Craft plugins');
 	console.log('');
 	await run('composer require craftcms/aws-s3 craftcms/redactor', { cwd: `${cwd}/craft` });
+	await run('./craft install/plugin aws-s3', { cwd: `${cwd}/craft` });
+	await run('./craft install/plugin redactor', { cwd: `${cwd}/craft` });
 
 	console.log('🤖 Installing nystudio107/craft-scripts');
 	console.log('');
