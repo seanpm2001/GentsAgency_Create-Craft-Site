@@ -6,9 +6,9 @@ const cp = require('child_process');
 const minimist = require('minimist');
 const https = require('https');
 
-const cwd = (() => {
-	const argv = minimist(process.argv.slice(2));
+const argv = minimist(process.argv.slice(2));
 
+const cwd = (() => {
 	if (argv._ && argv._.length > 0) {
 		const dir = argv._.pop();
 		return `${process.cwd()}/${dir}`;
@@ -17,13 +17,15 @@ const cwd = (() => {
 	return process.cwd();
 })();
 
+const requestsS3Bucket = typeof argv.s3 !== 'undefined';
+
 const run = (cmd, options = { cwd }) => new Promise((resolve, reject) => {
-	cp.exec(cmd, options, (err) => {
+	cp.exec(cmd, options, (err, stdout) => {
 		if (err) {
 			return reject(err);
 		}
 
-		return resolve();
+		return resolve(stdout);
 	});
 });
 
@@ -81,6 +83,24 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 	});
 });
 
+const createBucket = async (bucket) => {
+	const hasAwsCli = await (async () => {
+		try {
+			const accessKey = await run('aws configure get aws_access_key_id');
+			return !!accessKey;
+		} catch (error) {
+			return false;
+		}
+	})();
+
+	if (hasAwsCli) {
+		await run(`aws s3 mb s3://${bucket}`);
+		await run(`aws s3api put-bucket-acl --bucket ${bucket} --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"'`);
+	} else {
+		throw new Error('The AWS CLI is not installed or configured correctly');
+	}
+};
+
 (async function createCraftSite() {
 	console.log(`👋 Creating a new Craft website in ${cwd}`);
 	console.log('');
@@ -96,9 +116,14 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 
 	console.log('🔩 Installing Craft plugins');
 	console.log('');
-	await run('composer require craftcms/aws-s3 craftcms/redactor', { cwd: `${cwd}/craft` });
-	await run('./craft install/plugin aws-s3', { cwd: `${cwd}/craft` });
-	await run('./craft install/plugin redactor', { cwd: `${cwd}/craft` });
+	const plugins = ['craftcms/redactor'];
+
+	if (requestsS3Bucket) {
+		plugins.push('craftcms/aws-s3');
+	}
+
+	await run(`composer require ${plugins.join(' ')}`, { cwd: `${cwd}/craft` });
+	await Promise.all(plugins.map((plugin) => run(`./craft install/plugin ${plugin}`, { cwd: `${cwd}/craft` })));
 
 	console.log('🤖 Installing nystudio107/craft-scripts');
 	console.log('');
@@ -106,6 +131,21 @@ const downloadFile = (url) => new Promise((resolve, reject) => {
 	await run(`unzip ${download} -d ${__dirname}/tmp`);
 	await fs.move(`${__dirname}/tmp/craft-scripts-master/scripts`, `${cwd}/scripts`);
 	await fs.remove(`${__dirname}/tmp`);
+
+	if (requestsS3Bucket) {
+		try {
+			const bucket = typeof argv.s3 === 'string' ? argv.s3 : path.basename(cwd);
+
+			console.log(`🌅 Creating a '${bucket}' bucket on S3`);
+			console.log('');
+
+			await createBucket(bucket);
+		} catch (error) {
+			console.log('    Something went wrong while creating & configuring the S3 bucket.');
+			console.log('    You will have to do this manually.');
+			console.log('');
+		}
+	}
 
 	console.log('🚢 Moving some files around');
 	console.log('');
