@@ -114,9 +114,11 @@ const createBucket = async (bucket) => {
 		run('composer create-project craftcms/craft ./craft'),
 	]);
 
-	console.log('🔩 Installing Craft plugins');
-	console.log('');
-	const plugins = ['craftcms/redactor'];
+	const plugins = [
+		'craftcms/redactor',
+		'gentsagency/craft-inline-icons',
+		'gentsagency/craft-responsive-images',
+	];
 
 	if (requestsS3Bucket) {
 		plugins.push('craftcms/aws-s3');
