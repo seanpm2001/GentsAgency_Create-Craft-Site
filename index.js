@@ -125,7 +125,6 @@ const createBucket = async (bucket) => {
 	}
 
 	await run(`composer require ${plugins.join(' ')}`, { cwd: `${cwd}/craft` });
-	await Promise.all(plugins.map((plugin) => run(`./craft install/plugin ${plugin}`, { cwd: `${cwd}/craft` })));
 
 	console.log('🤖 Installing nystudio107/craft-scripts');
 	console.log('');
