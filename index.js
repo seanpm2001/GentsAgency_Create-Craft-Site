@@ -173,7 +173,7 @@ const createBucket = async (bucket) => {
 	Header always set Strict-Transport-Security "strict-transport-security: max-age=31536000; includeSubDomains"
 	Header always set X-Content-Type-Options "nosniff"
 	Header always set X-Frame-Options "SAMEORIGIN"
-	Header always set X-Xss-Protection "1; mode=block"
+	Header always set X-XSS-Protection "1; mode=block"
 </IfModule>`),
 		replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' }),
 	]);
