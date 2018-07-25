@@ -165,7 +165,18 @@ const createBucket = async (bucket) => {
 
 	console.log('🔧 Tweaking your configuration');
 	console.log('');
-	await replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' });
+	await Promise.all([
+		fs.remove(`${cwd}/www/web.config`),
+		fs.appendFile(`${cwd}/www/.htaccess`, `
+<IfModule mod_headers.c>
+	Header always set Referrer-Policy "strict-origin-when-cross-origin"
+	Header always set Strict-Transport-Security "strict-transport-security: max-age=31536000; includeSubDomains"
+	Header always set X-Content-Type-Options "nosniff"
+	Header always set X-Frame-Options "SAMEORIGIN"
+	Header always set X-Xss-Protection "1; mode=block"
+</IfModule>`),
+		replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' }),
+	]);
 
 	console.log('🌱 All set! Let\'s get you started:');
 	console.log('');
