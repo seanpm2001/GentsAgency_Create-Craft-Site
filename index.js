@@ -174,6 +174,7 @@ const createBucket = async (bucket) => {
 	Header always set X-Content-Type-Options "nosniff"
 	Header always set X-Frame-Options "SAMEORIGIN"
 	Header always set X-XSS-Protection "1; mode=block"
+	Header always set Content-Security-Policy "default-src 'self' ; script-src 'self' 'unsafe-inline' 'unsafe-eval' ; style-src 'self' 'unsafe-inline' ; img-src * ; font-src * ; connect-src 'self' ; object-src 'none' ; child-src 'self' ; frame-src 'self' ; worker-src 'self' ; frame-ancestors 'self' ; form-action 'self' ; manifest-src 'self' ; upgrade-insecure-requests; report-uri https://gents.report-uri.com/r/d/csp/enforce;"
 </IfModule>`),
 		replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' }),
 	]);
