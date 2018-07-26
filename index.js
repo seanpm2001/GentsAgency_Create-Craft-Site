@@ -169,12 +169,12 @@ const createBucket = async (bucket) => {
 		fs.remove(`${cwd}/www/web.config`),
 		fs.appendFile(`${cwd}/www/.htaccess`, `
 <IfModule mod_headers.c>
-	Header always set Referrer-Policy "strict-origin-when-cross-origin"
-	Header always set Strict-Transport-Security "strict-transport-security: max-age=31536000; includeSubDomains"
-	Header always set X-Content-Type-Options "nosniff"
-	Header always set X-Frame-Options "SAMEORIGIN"
-	Header always set X-XSS-Protection "1; mode=block"
-	Header always set Content-Security-Policy "default-src 'self' ; script-src 'self' 'unsafe-inline' 'unsafe-eval' ; style-src 'self' 'unsafe-inline' ; img-src * ; font-src * ; connect-src 'self' ; object-src 'none' ; child-src 'self' ; frame-src 'self' ; worker-src 'self' ; frame-ancestors 'self' ; form-action 'self' ; manifest-src 'self' ; upgrade-insecure-requests; report-uri https://gents.report-uri.com/r/d/csp/enforce;"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Strict-Transport-Security "strict-transport-security: max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Content-Security-Policy "default-src 'self' ; script-src 'self' 'unsafe-inline' 'unsafe-eval' ; style-src 'self' 'unsafe-inline' ; img-src * ; font-src * ; connect-src 'self' ; object-src 'none' ; child-src 'self' ; frame-src 'self' ; worker-src 'self' ; frame-ancestors 'self' ; form-action 'self' ; manifest-src 'self' ; upgrade-insecure-requests; report-uri https://gents.report-uri.com/r/d/csp/enforce;"
 </IfModule>`),
 		replaceInFile(`${cwd}/www/index.php`, { 'dirname(__DIR__)': '\'../craft\'' }),
 	]);
