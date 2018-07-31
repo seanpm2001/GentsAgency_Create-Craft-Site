@@ -19,7 +19,7 @@ $ npx @gentsagency/create-craft-site my-site
 This will output:
 
 ```
-👋 Creating a new Craft website in ~/Sites/my-site
+👋 Creating a new Craft website in ./my-site
 
 📥 Installing Craft CMS & a front-end setup
 ☕️ This might take a while
@@ -32,7 +32,7 @@ This will output:
 
 🌱 All set! Let's get you started:
 
-    cd ~/Sites/demo-project
+    cd ./my-site
     ./craft/craft setup
     gulp watch
 
