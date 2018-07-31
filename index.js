@@ -110,7 +110,7 @@ const createBucket = async (bucket) => {
 	console.log('☕️ This might take a while');
 	console.log('');
 	await Promise.all([
-		run('npm init @gentsagency/static-site --yes --scope=@gentsagency'),
+		run('npx @gentsagency/create-static-site --yes --scope=@gentsagency'),
 		run('composer create-project craftcms/craft ./craft'),
 	]);
 
