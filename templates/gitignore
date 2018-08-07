@@ -5,5 +5,7 @@
 /craft/storage/backups
 /craft/.env
 
+/scripts/.env.sh
+
 /www/cpresources
 /www/files
