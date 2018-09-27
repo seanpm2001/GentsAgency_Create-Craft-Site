@@ -28,6 +28,15 @@ ServerSignature Off
     Header always set Content-Security-Policy "default-src 'self' ; script-src 'self' 'unsafe-inline' 'unsafe-eval' ; style-src 'self' 'unsafe-inline' ; img-src https: data: ; font-src https: ; connect-src * ; object-src 'none' ; child-src 'self' ; frame-src 'self' ; worker-src 'self' ; frame-ancestors 'self' ; form-action 'self' ; manifest-src 'self' ; upgrade-insecure-requests; report-uri https://gents.report-uri.com/r/d/csp/enforce;"
 
     Header unset X-Powered-By
+    Header unset Server
+
+    <filesMatch ".(jpg|jpeg|png|gif|ico|svg)$">
+      Header set Cache-Control "max-age=31536000, public"
+    </filesMatch>
+
+    <filesMatch ".(css|js|json)$">
+      Header set Cache-Control "max-age=604800, public"
+    </filesMatch>
 </IfModule>
 
 <IfModule mod_mime.c>
