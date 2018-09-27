@@ -21,7 +21,7 @@ ServerSignature Off
 <IfModule mod_headers.c>
     # Set security headers
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Strict-Transport-Security "strict-transport-security: max-age=31536000; includeSubDomains" "expr=%{HTTPS} == 'on'"
+    Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" "expr=%{HTTPS} == 'on'"
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
