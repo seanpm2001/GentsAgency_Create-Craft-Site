@@ -1,6 +1,6 @@
 {
   "name": "@gentsagency/create-craft-site",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Bootstrap a Craft CMS site",
   "main": "index.js",
   "bin": "index.js",
